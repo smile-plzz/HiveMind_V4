@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DiscussionMessage } from '../types';
-import { Cpu, Bot } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Cpu, Bot, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 
 interface Props {
@@ -33,6 +33,8 @@ const markdownComponents = {
 };
 
 export function AgentDiscussion({ discussion }: Props) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   if (!discussion || discussion.length === 0) return null;
 
   const getAgentStyle = (role: string) => {
@@ -67,12 +69,29 @@ export function AgentDiscussion({ discussion }: Props) {
 
   return (
     <div className="mb-8" id="agent-discussion-swarm">
-      <div className="flex items-center gap-2.5 mb-5 pl-1">
-        <Cpu className="w-5 h-5 text-yellow-400 animate-pulse" />
-        <h2 className="text-sm font-bold text-white tracking-widest uppercase font-mono drop-shadow-sm">Swarm Consensus Room</h2>
+      <div 
+        className="flex items-center justify-between mb-5 pl-1 cursor-pointer group"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-2.5">
+          <Cpu className="w-5 h-5 text-yellow-400 animate-pulse" />
+          <h2 className="text-sm font-bold text-white tracking-widest uppercase font-mono drop-shadow-sm group-hover:text-yellow-400 transition-colors">Swarm Consensus Room</h2>
+          <span className="text-[10px] font-mono text-slate-500 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">{discussion.length} logs</span>
+        </div>
+        <button className="p-1.5 hover:bg-slate-800/80 rounded-lg transition-colors text-slate-400">
+          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
       </div>
-      <div className="space-y-4 max-h-[500px] overflow-y-auto pr-3 custom-scrollbar">
-        {discussion.map((msg, idx) => {
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: 'auto' }} 
+            exit={{ opacity: 0, height: 0 }}
+            className="space-y-4 max-h-[500px] overflow-y-auto pr-3 custom-scrollbar"
+          >
+            {discussion.map((msg, idx) => {
           const style = getAgentStyle(msg.role);
           const rawContent = typeof msg.content === 'object' ? JSON.stringify(msg.content, null, 2) : String(msg.content);
           return (
@@ -103,7 +122,9 @@ export function AgentDiscussion({ discussion }: Props) {
             </motion.div>
           );
         })}
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

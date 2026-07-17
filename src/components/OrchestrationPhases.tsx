@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { WorkflowState, SelfHealingAttempt, QualityGateAudit } from '../types';
 import { 
   FileCode, Terminal, Shield, CheckCircle2, AlertTriangle, 
-  RefreshCw, Layers, ShieldCheck, Zap, Activity, Users, FileText
+  RefreshCw, Layers, ShieldCheck, Zap, Activity, Users, FileText, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -12,6 +12,16 @@ interface ComponentProps {
 
 export function OrchestrationPhases({ state }: ComponentProps) {
   const { status, synthesisReport, synthesizedDeliverables, selfHealingReport, qualityGateReport } = state;
+
+  const [expandedPhases, setExpandedPhases] = useState<Record<number, boolean>>({
+    4: true,
+    5: true,
+    6: true
+  });
+
+  const togglePhase = (phase: number) => {
+    setExpandedPhases(prev => ({...prev, [phase]: !prev[phase]}));
+  };
 
   if (
     status !== 'integrating' && 
@@ -38,7 +48,7 @@ export function OrchestrationPhases({ state }: ComponentProps) {
           >
             <div className="scanning-line opacity-20" />
             
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-800/60 mb-6 relative z-10">
+            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 ${expandedPhases[4] ? 'border-b border-slate-800/60 mb-6' : ''} relative z-10`}>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-blue-950/80 flex items-center justify-center border border-blue-500/30 shadow-inner">
                   <Layers className="w-6 h-6 text-blue-400 animate-pulse" />
@@ -51,7 +61,7 @@ export function OrchestrationPhases({ state }: ComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span className={`px-2.5 py-1 rounded text-[9px] font-mono font-bold tracking-widest uppercase shadow-sm ${
                   status === 'integrating' 
                     ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30 animate-pulse'
@@ -59,10 +69,21 @@ export function OrchestrationPhases({ state }: ComponentProps) {
                 }`}>
                   {status === 'integrating' ? 'ACTIVE_SCANNING' : 'SYNTHESIS_COMPLETE'}
                 </span>
+                <button 
+                  onClick={() => togglePhase(4)}
+                  className="p-1.5 hover:bg-slate-800/80 rounded-lg transition-colors shrink-0 text-slate-400 border border-transparent hover:border-slate-700"
+                >
+                  {expandedPhases[4] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+            {expandedPhases[4] && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10"
+              >
               {/* Report Summary */}
               <div className="md:col-span-2 space-y-3">
                 <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
@@ -104,7 +125,8 @@ export function OrchestrationPhases({ state }: ComponentProps) {
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -120,7 +142,7 @@ export function OrchestrationPhases({ state }: ComponentProps) {
           >
             <div className="scanning-line opacity-10" />
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80 mb-5 relative z-10">
+            <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 ${expandedPhases[5] ? 'border-b border-slate-800/80 mb-5' : ''} relative z-10`}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center border border-slate-800">
                   <Terminal className="w-5 h-5 text-yellow-400 animate-pulse" />
@@ -133,7 +155,7 @@ export function OrchestrationPhases({ state }: ComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-3">
                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold tracking-wider uppercase ${
                   selfHealingReport?.success 
                     ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
@@ -143,10 +165,20 @@ export function OrchestrationPhases({ state }: ComponentProps) {
                 }`}>
                   {selfHealingReport?.success ? 'COMPILATION_STABLE' : status === 'testing' ? 'VALIDATION_TESTING' : 'COMPILATION_WARNINGS'}
                 </span>
+                <button 
+                  onClick={() => togglePhase(5)}
+                  className="p-1.5 hover:bg-slate-800/80 rounded-lg transition-colors shrink-0 text-slate-400 border border-transparent hover:border-slate-700"
+                >
+                  {expandedPhases[5] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
-            <SelfHealingAttemptsView report={selfHealingReport} status={status} />
+            {expandedPhases[5] && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                <SelfHealingAttemptsView report={selfHealingReport} status={status} />
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -162,7 +194,7 @@ export function OrchestrationPhases({ state }: ComponentProps) {
           >
             <div className="scanning-line opacity-10" />
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/60 mb-5 relative z-10">
+            <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 ${expandedPhases[6] ? 'border-b border-slate-800/60 mb-5' : ''} relative z-10`}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-rose-950/80 flex items-center justify-center border border-rose-500/30">
                   <Shield className="w-5 h-5 text-rose-400 animate-pulse" />
@@ -175,7 +207,7 @@ export function OrchestrationPhases({ state }: ComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold tracking-wider uppercase ${
                   qualityGateReport?.overallPassed 
                     ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
@@ -185,11 +217,18 @@ export function OrchestrationPhases({ state }: ComponentProps) {
                 }`}>
                   {qualityGateReport?.overallPassed ? 'RELEASE_APPROVED' : status === 'reviewing' ? 'AUDITING_DELIVERABLES' : 'RELEASE_REJECTED'}
                 </span>
+                <button 
+                  onClick={() => togglePhase(6)}
+                  className="p-1.5 hover:bg-slate-800/80 rounded-lg transition-colors shrink-0 text-slate-400 border border-transparent hover:border-slate-700"
+                >
+                  {expandedPhases[6] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
             {/* Structured Audits Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+            {expandedPhases[6] && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
               {qualityGateReport?.audits.map((audit, idx) => (
                 <div 
                   key={idx} 
@@ -232,7 +271,8 @@ export function OrchestrationPhases({ state }: ComponentProps) {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
