@@ -1,0 +1,8 @@
+{
+  "name": "Remix: HivemindV4",
+  "description": "An AI agent orchestration platform that breaks down complex tasks and assigns them to specialized Z.ai models for seamless execution.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
